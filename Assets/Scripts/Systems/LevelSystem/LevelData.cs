@@ -10,6 +10,8 @@ namespace Connect.Systems.LevelSystem {
         public int gridXSize; // Width of the grid
         public int gridYSize; // Height of the grid
         public List<NodePair> nodes;
+        public List<NodeGroup> nodeGroups;
+        public List<HolePair> holePairs;
     }
 
     [Serializable]
@@ -22,6 +24,18 @@ namespace Connect.Systems.LevelSystem {
     public struct Node {
         public Vector2Int nodePosition;
         public Color nodeColor;
+    }
+
+    [Serializable]
+    public struct NodeGroup {
+        public Color groupColor;
+        public List<Node> nodes;
+    }
+
+    [Serializable]
+    public struct HolePair {
+        public Vector2Int entryPosition;
+        public Vector2Int exitPosition;
     }
     
 }

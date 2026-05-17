@@ -12,6 +12,7 @@ namespace Connect.Views {
     public class TileData {
         public Node nodeData;
         public bool isNode;
+        public bool isHole;
         public int pairIndex;
         public int gridXSize;
         public int gridYSize;
@@ -38,6 +39,7 @@ namespace Connect.Views {
         [SerializeField] private GameObject leftEdge;
         [SerializeField] private GameObject topEdge;
         [SerializeField] private GameObject bottomEdge;
+        [SerializeField] private GameObject holeObject;
         [SerializeField] private SpriteRenderer nodeImage;
         
         [SerializeField] private List<TileEdgeData> edgeDataArray;

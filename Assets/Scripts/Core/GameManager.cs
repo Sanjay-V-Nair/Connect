@@ -25,12 +25,15 @@ namespace Connect.Core {
 
         private void SetGameData() {
             var gameLevel = LocalDatastore.GetData("Level");
-            if (string.IsNullOrEmpty(gameLevel)) {
-                LocalDatastore.SaveData("Level", "1");
-                gameLevel = "1";
-            }
+            if (string.IsNullOrEmpty(gameLevel)) gameLevel = "1";
+            LocalDatastore.SaveData("Level", gameLevel);
             var level = int.TryParse(gameLevel, out var result) ? result : 1;
             GameStateData.SetGameLevel(level);
+        }
+        
+        public void UnlockNextLevel() {
+            GameStateData.UpdateGameLevel();
+            LocalDatastore.SaveData("Level", GameStateData.GetGameLevel().ToString());
         }
         
         public void LoadSceneAsync(string sceneName) {

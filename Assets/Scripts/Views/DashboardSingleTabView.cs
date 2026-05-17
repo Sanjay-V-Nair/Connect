@@ -23,6 +23,7 @@ namespace Connect.Views {
         
         [SerializeField] private DashboardTabType _tabType;
         [SerializeField] private Image _tabIcon;
+        [SerializeField] private Transform _tabIconTransform;
         [SerializeField] private TMP_Text _tabName;
         [SerializeField] private ButtonView tabButton;
 
@@ -43,7 +44,7 @@ namespace Connect.Views {
             if (isSelected) return;
             EventBus<DashboardEvents.DashboardTabEvent>.Raise(new DashboardEvents.DashboardTabEvent()
                 { TabType = _tabType });
-            _tabIcon.transform.DOScale(new Vector3(1.5f, 1.5f, 1.5f), 0.2f).SetEase(Ease.OutBack);
+            _tabIconTransform.DOScale(new Vector3(1.5f, 1.5f, 1.5f), 0.2f).SetEase(Ease.OutBack);
             isSelected = true;
         }
 
@@ -59,14 +60,14 @@ namespace Connect.Views {
         }
 
         public override void Reset() {
-            _tabIcon.transform.DOScale(Vector3.one, 0.5f)
-                .OnComplete(() => _tabIcon.transform.localScale = Vector3.one);
+            _tabIconTransform.DOScale(Vector3.one, 0.5f)
+                .OnComplete(() => _tabIconTransform.localScale = Vector3.one);
             isSelected = false;
         }
 
         public void SetState(bool b) {
             if (isSelected) return;
-            _tabIcon.transform.DOScale(new Vector3(1.5f, 1.5f, 1.5f), 0.5f).SetEase(Ease.OutBack);
+            _tabIconTransform.DOScale(new Vector3(1.5f, 1.5f, 1.5f), 0.5f).SetEase(Ease.OutBack);
             isSelected = b;
         }
     }

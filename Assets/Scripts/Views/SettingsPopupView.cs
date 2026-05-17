@@ -32,10 +32,5 @@ namespace Connect.Views {
         protected override bool CanDraw(Bundle context) {
             return true;
         }
-
-        public override void Reset() {
-            transform.DOScale(Vector3.zero, 0.5f)
-                .OnComplete(() => gameObject.SetActive(false));
-        }
     }
 }

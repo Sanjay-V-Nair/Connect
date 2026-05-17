@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92a2fa92d97b46b3828ce55eb1d90ed4, type: 3}
+  m_Name: Level3
+  m_EditorClassIdentifier: Assembly-CSharp::Connect.Systems.LevelSystem.LevelData
+  levelNumber: 3
+  gridXSize: 4
+  gridYSize: 4
+  nodes:
+  - startNode:
+      nodePosition: {x: 3, y: 1}
+      nodeColor: {r: 0.03273673, g: 0.383154, b: 0.8426699, a: 1}
+    endNode:
+      nodePosition: {x: 0, y: 0}
+      nodeColor: {r: 0.03273673, g: 0.383154, b: 0.8426699, a: 1}
+  - startNode:
+      nodePosition: {x: 2, y: 3}
+      nodeColor: {r: 0.861526, g: 0.24985823, b: 0.54782474, a: 1}
+    endNode:
+      nodePosition: {x: 0, y: 2}
+      nodeColor: {r: 0.861526, g: 0.24985823, b: 0.54782474, a: 1}
+  - startNode:
+      nodePosition: {x: 3, y: 3}
+      nodeColor: {r: 1, g: 0.907134, b: 0, a: 1}
+    endNode:
+      nodePosition: {x: 2, y: 1}
+      nodeColor: {r: 1, g: 0.90588236, b: 0, a: 1}
+  nodeGroups: []
+  holePairs: []

@@ -1,4 +1,5 @@
 ﻿using Connect.Models;
+using Connect.Systems.Datastore;
 using Connect.Systems.EventBus;
 using Connect.Systems.LevelSystem;
 using Connect.Views;
@@ -24,6 +25,7 @@ namespace Connect.Core {
 
         private void OnLevelCompleted(GameSceneEvents.LevelCompletedEvent obj) {
             gameResultView.Draw(null);
+            GameManager.Instance.UnlockNextLevel();
         }
 
         private void Start() {

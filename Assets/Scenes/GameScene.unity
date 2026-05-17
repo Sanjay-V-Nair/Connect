@@ -891,6 +891,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a0449a8c95416041afe17147681eb80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Connect.Systems.LevelSystem.LevelController
+  gridLayoutGroup: {fileID: 1044866207}
   gridSpawner: {fileID: 761276214}
   gridParent: {fileID: 1044866203}
 --- !u!1 &765609493
@@ -1315,7 +1316,7 @@ MonoBehaviour:
   m_StartAxis: 0
   m_CellSize: {x: 100, y: 100}
   m_Spacing: {x: 100, y: 100}
-  m_Constraint: 2
+  m_Constraint: 1
   m_ConstraintCount: 3
 --- !u!114 &1044866208
 MonoBehaviour:

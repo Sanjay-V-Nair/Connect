@@ -4,11 +4,13 @@ using Connect.Systems.EventBus;
 using Connect.Views;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace Connect.Systems.LevelSystem {
     public class LevelController : MonoBehaviour {
         public static LevelController Instance { get; private set; }
 
+        [SerializeField] private GridLayoutGroup gridLayoutGroup;
         [SerializeField] private GridSpawner gridSpawner;
         [SerializeField] private Transform gridParent;
         
@@ -34,6 +36,8 @@ namespace Connect.Systems.LevelSystem {
             paths.Clear();
             currentPath.Clear();
             isDragging = false;
+
+            gridLayoutGroup.constraintCount = levelData.gridYSize; // Number of columns is actually the size on X in order
             
             grid = gridSpawner.SpawnGrid(levelData, gridParent);
         }

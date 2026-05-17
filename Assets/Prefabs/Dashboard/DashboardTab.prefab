@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: HOME
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 95496ac89e0159a4fa752116fa31aac4, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: c8ef6919ca1f864469d002367c89c07a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 285b8f36574cf3a449e3f7e0da93dab8, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: a1b225b6dd2c4fe448df1519799c97f4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -409,15 +409,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.7511432, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ee5fdcd5369ee60458554134a38069c4, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 4a5a66c24faee1a46972144a4dadd7ff, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -425,7 +425,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 2
 --- !u!114 &2594268413256256809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -440,5 +440,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Connect.Views.DashboardSingleTabView
   _tabType: 4
   _tabIcon: {fileID: 7911996102940518063}
+  _tabIconTransform: {fileID: 5845140201911130733}
   _tabName: {fileID: 2295430859603279283}
   tabButton: {fileID: 4619489455797977908}
