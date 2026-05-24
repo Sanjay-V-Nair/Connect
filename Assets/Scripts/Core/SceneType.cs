@@ -3,6 +3,7 @@
         OnboardingScene,
         DashboardScene,
         GameScene,
+        SandboxScene,
     }
     
     public static class SceneTypeExtensions {
@@ -11,6 +12,7 @@
                 SceneType.OnboardingScene => "OnboardingScene",
                 SceneType.DashboardScene => "DashboardScene",
                 SceneType.GameScene => "GameScene",
+                SceneType.SandboxScene => "SandboxScene",
                 _ => throw new System.ArgumentOutOfRangeException(nameof(sceneType), sceneType, null)
             };
         }

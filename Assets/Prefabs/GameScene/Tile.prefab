@@ -152,6 +152,7 @@ MonoBehaviour:
   leftEdge: {fileID: 8182782867912346367}
   topEdge: {fileID: 2749449408449569391}
   bottomEdge: {fileID: 8025451463476737102}
+  holeObject: {fileID: 0}
   nodeImage: {fileID: 6324880291638261043}
   edgeDataArray:
   - edge: 0
@@ -265,7 +266,7 @@ BoxCollider2D:
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 100, y: 100}
+  m_Size: {x: 150, y: 150}
   m_EdgeRadius: 0
 --- !u!1 &2749449408449569391
 GameObject:

@@ -27,6 +27,11 @@ namespace Connect.Systems.LevelSystem {
     }
 
     [Serializable]
+    public struct Hole {
+        public Vector2Int nodePosition;
+    }
+
+    [Serializable]
     public struct NodeGroup {
         public Color groupColor;
         public List<Node> nodes;

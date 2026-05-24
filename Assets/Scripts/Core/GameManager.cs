@@ -47,6 +47,7 @@ namespace Connect.Core {
                     AudioManager.Instance.PlayGameAudio(true);
                     break;
                 case "GameScene":
+                default:
                     AudioManager.Instance.PlayLevelAudio(true);
                     break;
             }

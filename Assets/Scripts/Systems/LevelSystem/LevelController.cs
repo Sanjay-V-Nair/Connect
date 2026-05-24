@@ -37,7 +37,7 @@ namespace Connect.Systems.LevelSystem {
             currentPath.Clear();
             isDragging = false;
 
-            gridLayoutGroup.constraintCount = levelData.gridYSize; // Number of columns is actually the size on X in order
+            //gridLayoutGroup.constraintCount = levelData.gridYSize; // Number of columns is actually the size on X in order
             
             grid = gridSpawner.SpawnGrid(levelData, gridParent);
         }
@@ -67,7 +67,7 @@ namespace Connect.Systems.LevelSystem {
             Vector2 pointerPos = Pointer.current.position.ReadValue();
 
             if (pointerDownThisFrame) {
-                TileView hitTile = GetTileAtPointer(pointerPos);
+                var hitTile = GetTileAtPointer(pointerPos);
                 if (hitTile != null) {
                     HandlePointerDown(hitTile);
                 }
@@ -84,12 +84,15 @@ namespace Connect.Systems.LevelSystem {
         }
 
         private TileView GetTileAtPointer(Vector2 screenPos) {
-            if (Camera.main == null) return null;
-            Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
-            RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
-            if (hit.collider != null) {
+            if (Camera.main == null)
+                return null;
+
+            var ray = Camera.main.ScreenPointToRay(screenPos);
+
+            if (Physics.Raycast(ray, out var hit)) {
                 return hit.collider.GetComponent<TileView>();
             }
+            
             return null;
         }
 
@@ -112,7 +115,7 @@ namespace Connect.Systems.LevelSystem {
             if (!isDragging) return;
             if (currentPath.Count == 0) return;
 
-            TileView lastTile = currentPath[currentPath.Count - 1];
+            var lastTile = currentPath[currentPath.Count - 1];
             if (tile == lastTile) return;
 
             // Check if we are backtracking
@@ -156,8 +159,8 @@ namespace Connect.Systems.LevelSystem {
             isDragging = false;
             
             if (currentPath.Count > 1) {
-                TileView startTile = currentPath[0];
-                TileView endTile = currentPath[currentPath.Count - 1];
+                var startTile = currentPath[0];
+                var endTile = currentPath[currentPath.Count - 1];
 
                 if (startTile.IsNode && endTile.IsNode && startTile.PairIndex == endTile.PairIndex) {
                     // Path is complete
@@ -166,6 +169,8 @@ namespace Connect.Systems.LevelSystem {
                         AudioManager.Instance.PlayConnectAudio();
                     }
                     currentPath.Clear();
+                    startTile.RenderState(TileState.Complete, currentPathColor);
+                    endTile.RenderState(TileState.Complete, currentPathColor);
                     CheckWinCondition();
                     return;
                 }
@@ -185,6 +190,7 @@ namespace Connect.Systems.LevelSystem {
 
             fromTile.EnablePathEdge(fromEdge, currentPathColor, currentPathPairIndex);
             toTile.EnablePathEdge(toEdge, currentPathColor, currentPathPairIndex);
+            toTile.RenderState(TileState.Path, currentPathColor);
             
             if (AudioManager.Instance != null) {
                 AudioManager.Instance.PlayEdgeProgressAudio();
@@ -194,12 +200,12 @@ namespace Connect.Systems.LevelSystem {
         }
 
         private void RemoveLastTileFromPath() {
-            TileView lastTile = currentPath[currentPath.Count - 1];
-            TileView prevTile = currentPath[currentPath.Count - 2];
+            var lastTile = currentPath[currentPath.Count - 1];
+            var prevTile = currentPath[currentPath.Count - 2];
 
-            Vector2Int dir = lastTile.GridPosition - prevTile.GridPosition;
+            var dir = lastTile.GridPosition - prevTile.GridPosition;
             
-            TileEdge fromEdge = GetEdgeDirection(dir);
+            var fromEdge = GetEdgeDirection(dir);
 
             prevTile.DisablePathEdge(fromEdge);
             lastTile.ClearPath(); 
@@ -208,7 +214,7 @@ namespace Connect.Systems.LevelSystem {
         }
 
         private void ClearPathByPair(int pairIndex) {
-            if (paths.TryGetValue(pairIndex, out List<TileView> oldPath)) {
+            if (paths.TryGetValue(pairIndex, out var oldPath)) {
                 foreach (var t in oldPath) {
                     t.ClearPath();
                 }
@@ -231,19 +237,16 @@ namespace Connect.Systems.LevelSystem {
         private void CheckWinCondition() {
             if (currentLevelData == null) return;
             
-            int pairsConnected = 0;
+            var pairsConnected = 0;
             for (int i = 0; i < currentLevelData.nodes.Count; i++) {
                 var nodePair = currentLevelData.nodes[i];
-                if (paths.ContainsKey(i)) {
-                    var path = paths[i];
-                    if (path.Count > 1) {
-                        var start = path[0];
-                        var end = path[path.Count - 1];
-                        if ((start.GridPosition == nodePair.startNode.nodePosition && end.GridPosition == nodePair.endNode.nodePosition) ||
-                            (start.GridPosition == nodePair.endNode.nodePosition && end.GridPosition == nodePair.startNode.nodePosition)) {
-                            pairsConnected++;
-                        }
-                    }
+                if (!paths.TryGetValue(i, out var path)) continue;
+                if (path.Count <= 1) continue;
+                var start = path[0];
+                var end = path[path.Count - 1];
+                if ((start.GridPosition == nodePair.startNode.nodePosition && end.GridPosition == nodePair.endNode.nodePosition) ||
+                    (start.GridPosition == nodePair.endNode.nodePosition && end.GridPosition == nodePair.startNode.nodePosition)) {
+                    pairsConnected++;
                 }
             }
 

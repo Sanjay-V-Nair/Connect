@@ -102,7 +102,8 @@ public class LevelDataGeneratorWindow : EditorWindow {
             levelAsset.levelNumber = levelNumber;
             levelAsset.gridXSize = gridXSize;
             levelAsset.gridYSize = gridYSize;
-            levelAsset.nodes = nodePairs;
+            levelAsset.
+                nodes = nodePairs;
             levelAsset.nodeGroups = new List<NodeGroup>();
             levelAsset.holePairs = new List<HolePair>();
 

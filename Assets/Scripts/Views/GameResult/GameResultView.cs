@@ -1,16 +1,20 @@
 ﻿using Connect.Core;
 using Connect.Models;
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 namespace Connect.Views.GameResult {
     public class GameResultView : DrawView<Bundle> {
 
         [SerializeField] private ButtonView homeButton;
+        [SerializeField] private TMP_Text resultText;
         
         protected override void Render(Bundle context) {
             gameObject.SetActive(true);
             AudioManager.Instance.PlayWinAudio();
             SetButtons();
+            resultText.DOFade(1.0f, 0.6f);
         }
 
         private void SetButtons() {

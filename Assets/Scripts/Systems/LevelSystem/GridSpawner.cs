@@ -18,10 +18,10 @@ namespace Connect.Systems.LevelSystem {
             
             TileView[,] grid = new TileView[levelData.gridXSize, levelData.gridYSize];
             
-            for (var y = 0; y < levelData.gridYSize; y++) {
-                for (var x = 0; x < levelData.gridXSize; x++) {
+            for (var x = 0; x < levelData.gridXSize; x++) {
+                for (var y = 0; y < levelData.gridYSize; y++) {
                     // Position calculated from lower bottom to upper right
-                    var spawnPosition = new Vector3(x * tileSize, y * tileSize, 0);
+                    var spawnPosition = new Vector3(x * tileSize, 0, y * tileSize); // 3D space
                     
                     var spawnedTile = Instantiate(tilePrefab, parentTransform);
                     spawnedTile.transform.localPosition = spawnPosition;
@@ -29,6 +29,7 @@ namespace Connect.Systems.LevelSystem {
 
                     var pos = new Vector2Int(x, y);
                     var isNode = false;
+                    var isHole = false;
                     var currentNode = new Node { nodePosition = pos };
                     int pairIndex = -1;
                     
@@ -49,14 +50,25 @@ namespace Connect.Systems.LevelSystem {
                             }
                         }
                     }
+                    
+                    if (levelData.holePairs != null && levelData.holePairs.Count > 0) {
+                        foreach (var holePair in levelData.holePairs) {
+                            if (holePair.entryPosition == pos || holePair.exitPosition == pos) {
+                                isHole = true;
+                                break;
+                            }
+                        }
+                    }
 
                     // Initialize the TileData for drawing
                     var tileData = new TileData {
                         nodeData = currentNode,
                         isNode = isNode,
+                        isHole = isHole,
                         pairIndex = pairIndex,
                         gridXSize = levelData.gridXSize,
-                        gridYSize = levelData.gridYSize
+                        gridYSize = levelData.gridYSize,
+                        tileIndex = $"{x},{y}",
                     };
 
                     spawnedTile.Draw(tileData);

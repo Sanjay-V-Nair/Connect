@@ -49,7 +49,7 @@ namespace Connect.Views {
         }
 
         private void OnPlayButtonClick() {
-            var gameSceneName = SceneType.GameScene.GetSceneName();
+            var gameSceneName = SceneType.SandboxScene.GetSceneName();
             GameManager.Instance.LoadSceneAsync(gameSceneName);
         }
 
