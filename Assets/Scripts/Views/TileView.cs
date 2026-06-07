@@ -70,6 +70,7 @@ namespace Connect.Views {
         public Color? PathColor { get; private set; }
         public int? PathPairIndex { get; private set; }
         public bool IsNode { get; private set; }
+        public bool IsHole { get; private set; }
         public Color NodeColor { get; private set; }
         public int PairIndex { get; private set; }
 
@@ -85,6 +86,7 @@ namespace Connect.Views {
             
             GridPosition = nodeData.nodePosition;
             IsNode = context.isNode;
+            IsHole = context.isHole;
             NodeColor = nodeData.nodeColor;
             PairIndex = context.pairIndex;
             
@@ -171,6 +173,15 @@ namespace Connect.Views {
             }
             nodeImage.color = color;
             nodeTile.SetActive(true);
+        }
+
+        public void SetPathData(Color color, int pairIndex) {
+            PathColor = color;
+            PathPairIndex = pairIndex;
+            color.a = 1f;
+            nodeImage.color = color;
+            nodeTile.SetActive(true);
+            SetPath(color);
         }
 
         public void DisablePathEdge(TileEdge edge) {

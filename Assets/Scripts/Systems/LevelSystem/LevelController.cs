@@ -109,6 +109,37 @@ namespace Connect.Systems.LevelSystem {
                 currentPath.Clear();
                 currentPath.Add(tile);
             }
+            else if (tile.PathPairIndex.HasValue) {
+                int pairIndex = tile.PathPairIndex.Value;
+                if (paths.TryGetValue(pairIndex, out var path)) {
+                    int index = path.IndexOf(tile);
+                    if (index >= 0) {
+                        isDragging = true;
+                        currentPathPairIndex = pairIndex;
+                        currentPathColor = path[0].NodeColor;
+                        currentPath = new List<TileView>();
+                        for (int i = 0; i <= index; i++) {
+                            currentPath.Add(path[i]);
+                        }
+                        
+                        // Clear subsequent tiles
+                        for (int i = path.Count - 1; i > index; i--) {
+                            var t = path[i];
+                            var prev = path[i - 1];
+                            
+                            if (IsAdjacent(t.GridPosition, prev.GridPosition)) {
+                                var dir = t.GridPosition - prev.GridPosition;
+                                var fromEdge = GetEdgeDirection(dir);
+                                prev.DisablePathEdge(fromEdge);
+                            }
+                            
+                            t.ClearPath();
+                        }
+                        
+                        paths.Remove(pairIndex);
+                    }
+                }
+            }
         }
 
         private void HandlePointerEnter(TileView tile) {
@@ -152,6 +183,23 @@ namespace Connect.Systems.LevelSystem {
             }
 
             AddTileToPath(lastTile, tile);
+
+            if (tile.IsHole) {
+                var otherHole = GetOtherHolePair(tile);
+                if (otherHole != null) {
+                    // If other hole is part of a different path, clear it
+                    if (otherHole.PathPairIndex != null && otherHole.PathPairIndex.Value != currentPathPairIndex) {
+                        ClearPathByPair(otherHole.PathPairIndex.Value);
+                    }
+                    otherHole.SetPathData(currentPathColor, currentPathPairIndex);
+                    currentPath.Add(otherHole);
+                    
+                    if (AudioManager.Instance != null) {
+                        AudioManager.Instance.PlayConnectAudio();
+                    }
+                }
+                HandlePointerUp();
+            }
         }
 
         private void HandlePointerUp() {
@@ -205,9 +253,10 @@ namespace Connect.Systems.LevelSystem {
 
             var dir = lastTile.GridPosition - prevTile.GridPosition;
             
-            var fromEdge = GetEdgeDirection(dir);
-
-            prevTile.DisablePathEdge(fromEdge);
+            if (IsAdjacent(lastTile.GridPosition, prevTile.GridPosition)) {
+                var fromEdge = GetEdgeDirection(dir);
+                prevTile.DisablePathEdge(fromEdge);
+            }
             lastTile.ClearPath(); 
 
             currentPath.RemoveAt(currentPath.Count - 1);
@@ -254,6 +303,28 @@ namespace Connect.Systems.LevelSystem {
                 Debug.Log("LEVEL COMPLETED! ALL NODES CONNECTED!");
                 EventBus<GameSceneEvents.LevelCompletedEvent>.Raise(new GameSceneEvents.LevelCompletedEvent(){IsWin = true});
             }
+        }
+
+        private TileView GetOtherHolePair(TileView holeTile) {
+            if (currentLevelData == null || currentLevelData.holePairs == null) return null;
+            foreach (var hp in currentLevelData.holePairs) {
+                if (hp.entryPosition == holeTile.GridPosition) {
+                    return GetTileAtPosition(hp.exitPosition);
+                }
+                if (hp.exitPosition == holeTile.GridPosition) {
+                    return GetTileAtPosition(hp.entryPosition);
+                }
+            }
+            return null;
+        }
+
+        private TileView GetTileAtPosition(Vector2Int pos) {
+            if (grid == null) return null;
+            if (pos.x >= 0 && pos.x < currentLevelData.gridXSize &&
+                pos.y >= 0 && pos.y < currentLevelData.gridYSize) {
+                return grid[pos.x, pos.y];
+            }
+            return null;
         }
     }
 }

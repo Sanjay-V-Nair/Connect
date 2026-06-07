@@ -41,6 +41,11 @@ namespace Connect.Core {
             SetAudioForScene(sceneName);
         }
 
+        public void LoadScene(SceneType sceneType) {
+            var scene= SceneType.SandboxScene.GetSceneName();
+            LoadSceneAsync(scene);
+        }
+
         private void SetAudioForScene(string sceneName) {
             switch(sceneName) {
                 case "DashboardScene":

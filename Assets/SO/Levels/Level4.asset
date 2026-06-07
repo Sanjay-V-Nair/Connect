@@ -17,28 +17,30 @@ MonoBehaviour:
   gridYSize: 4
   nodes:
   - startNode:
-      nodePosition: {x: 1, y: 2}
-      nodeColor: {r: 0.9962838, g: 0.25952092, b: 0.7784795, a: 1}
-    endNode:
-      nodePosition: {x: 2, y: 1}
-      nodeColor: {r: 0.9962838, g: 0.25952092, b: 0.7784795, a: 1}
-  - startNode:
       nodePosition: {x: 1, y: 0}
-      nodeColor: {r: 0.4874447, g: 0.038686343, b: 0.8412865, a: 1}
-    endNode:
-      nodePosition: {x: 2, y: 0}
-      nodeColor: {r: 0.4874447, g: 0.038686343, b: 0.8412865, a: 1}
-  - startNode:
-      nodePosition: {x: 3, y: 3}
-      nodeColor: {r: 0.2807715, g: 1, b: 0, a: 1}
-    endNode:
-      nodePosition: {x: 3, y: 2}
-      nodeColor: {r: 0.28235295, g: 1, b: 0, a: 1}
-  - startNode:
-      nodePosition: {x: 3, y: 0}
-      nodeColor: {r: 0, g: 0.87161016, b: 1, a: 1}
+      nodeColor: {r: 0.8487364, g: 0.82822615, b: 0.20551081, a: 1}
     endNode:
       nodePosition: {x: 3, y: 1}
-      nodeColor: {r: 0, g: 0.87058824, b: 1, a: 1}
+      nodeColor: {r: 0.8487364, g: 0.82822615, b: 0.20551081, a: 1}
+  - startNode:
+      nodePosition: {x: 3, y: 2}
+      nodeColor: {r: 0.37441558, g: 0.8035885, b: 0.008701989, a: 1}
+    endNode:
+      nodePosition: {x: 1, y: 2}
+      nodeColor: {r: 0.37441558, g: 0.8035885, b: 0.008701989, a: 1}
+  - startNode:
+      nodePosition: {x: 0, y: 2}
+      nodeColor: {r: 0.8893712, g: 0.078340314, b: 0.7891692, a: 1}
+    endNode:
+      nodePosition: {x: 0, y: 0}
+      nodeColor: {r: 0.8893712, g: 0.078340314, b: 0.7891692, a: 1}
+  - startNode:
+      nodePosition: {x: 1, y: 3}
+      nodeColor: {r: 0.95177406, g: 0.10677908, b: 0.64002657, a: 1}
+    endNode:
+      nodePosition: {x: 3, y: 3}
+      nodeColor: {r: 0.95177406, g: 0.10677908, b: 0.64002657, a: 1}
   nodeGroups: []
-  holePairs: []
+  holePairs:
+  - entryPosition: {x: 0, y: 3}
+    exitPosition: {x: 2, y: 3}

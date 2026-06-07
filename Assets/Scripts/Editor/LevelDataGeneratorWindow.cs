@@ -12,6 +12,8 @@ public class LevelDataGeneratorWindow : EditorWindow {
     private int gridXSize = 5;
     private int gridYSize = 5;
     private int nodePairsPerLevel = 3;
+    private int minHolePairsPerLevel = 0;
+    private int maxHolePairsPerLevel = 1;
     private int minEndpointDistance = 2;
     private int minPathLength = 4;
     private int attemptsPerLevel = 40;
@@ -23,6 +25,7 @@ public class LevelDataGeneratorWindow : EditorWindow {
     private bool randomizeSeed = true;
 
     private System.Random rng;
+    private Dictionary<Vector2Int, Vector2Int> holeMap = new Dictionary<Vector2Int, Vector2Int>();
 
     [MenuItem("Tools/Level Data Generator")]
     private static void OpenWindow() {
@@ -39,6 +42,8 @@ public class LevelDataGeneratorWindow : EditorWindow {
         gridXSize = EditorGUILayout.IntField("Grid X Size", gridXSize);
         gridYSize = EditorGUILayout.IntField("Grid Y Size", gridYSize);
         nodePairsPerLevel = EditorGUILayout.IntField("Node Pairs Per Level", nodePairsPerLevel);
+        minHolePairsPerLevel = EditorGUILayout.IntField("Min Hole Pairs Per Level", minHolePairsPerLevel);
+        maxHolePairsPerLevel = EditorGUILayout.IntField("Max Hole Pairs Per Level", maxHolePairsPerLevel);
         minEndpointDistance = EditorGUILayout.IntField("Min Endpoint Distance", minEndpointDistance);
         minPathLength = EditorGUILayout.IntField("Min Path Length (cells)", minPathLength);
         attemptsPerLevel = EditorGUILayout.IntField("Attempts Per Level", attemptsPerLevel);
@@ -88,7 +93,7 @@ public class LevelDataGeneratorWindow : EditorWindow {
                 continue;
             }
 
-            if (!TryGenerateNodePairs(out var nodePairs)) {
+            if (!TryGenerateLayout(out var nodePairs, out var holePairs)) {
                 Debug.LogWarning($"Failed to generate a valid layout for Level {levelNumber} after {attemptsPerLevel} attempts.");
                 continue;
             }
@@ -102,10 +107,9 @@ public class LevelDataGeneratorWindow : EditorWindow {
             levelAsset.levelNumber = levelNumber;
             levelAsset.gridXSize = gridXSize;
             levelAsset.gridYSize = gridYSize;
-            levelAsset.
-                nodes = nodePairs;
+            levelAsset.nodes = nodePairs;
             levelAsset.nodeGroups = new List<NodeGroup>();
-            levelAsset.holePairs = new List<HolePair>();
+            levelAsset.holePairs = holePairs;
 
             EditorUtility.SetDirty(levelAsset);
             createdOrUpdatedLevels.Add(levelAsset);
@@ -142,10 +146,15 @@ public class LevelDataGeneratorWindow : EditorWindow {
             Debug.LogError("Node pairs per level must be >= 1.");
             return false;
         }
+        
+        if (minHolePairsPerLevel < 0 || maxHolePairsPerLevel < minHolePairsPerLevel) {
+            Debug.LogError("Invalid hole pairs configuration.");
+            return false;
+        }
 
         int maxEndpointCells = gridXSize * gridYSize;
-        if (nodePairsPerLevel * 2 > maxEndpointCells) {
-            Debug.LogError("Too many node pairs for current grid size.");
+        if (nodePairsPerLevel * 2 + maxHolePairsPerLevel * 2 > maxEndpointCells) {
+            Debug.LogError("Too many node/hole pairs for current grid size.");
             return false;
         }
 
@@ -167,12 +176,34 @@ public class LevelDataGeneratorWindow : EditorWindow {
         return true;
     }
 
-    private bool TryGenerateNodePairs(out List<NodePair> resultPairs) {
+    private bool TryGenerateLayout(out List<NodePair> resultPairs, out List<HolePair> resultHoles) {
         resultPairs = new List<NodePair>();
+        resultHoles = new List<HolePair>();
 
         for (int levelAttempt = 0; levelAttempt < attemptsPerLevel; levelAttempt++) {
             var occupied = new bool[gridXSize, gridYSize];
             var candidatePairs = new List<NodePair>();
+            var candidateHoles = new List<HolePair>();
+            holeMap.Clear();
+
+            int numHoles = rng.Next(minHolePairsPerLevel, maxHolePairsPerLevel + 1);
+            bool holesValid = true;
+            for(int i = 0; i < numHoles; i++) {
+                var freeCells = GetFreeCells(occupied);
+                freeCells.RemoveAll(c => holeMap.ContainsKey(c));
+                if (freeCells.Count < 2) { holesValid = false; break; }
+                
+                Vector2Int entry = freeCells[rng.Next(freeCells.Count)];
+                freeCells.Remove(entry);
+                Vector2Int exit = freeCells[rng.Next(freeCells.Count)];
+                
+                var pair = new HolePair { entryPosition = entry, exitPosition = exit };
+                candidateHoles.Add(pair);
+                holeMap[entry] = exit;
+                holeMap[exit] = entry;
+            }
+            if (!holesValid) continue;
+
             bool levelValid = true;
 
             for (int pairIndex = 0; pairIndex < nodePairsPerLevel; pairIndex++) {
@@ -186,6 +217,7 @@ public class LevelDataGeneratorWindow : EditorWindow {
 
             if (levelValid && candidatePairs.Count == nodePairsPerLevel) {
                 resultPairs = candidatePairs;
+                resultHoles = candidateHoles;
                 return true;
             }
         }
@@ -199,6 +231,7 @@ public class LevelDataGeneratorWindow : EditorWindow {
 
         for (int attempt = 0; attempt < pairAttempts; attempt++) {
             var freeCells = GetFreeCells(occupied);
+            freeCells.RemoveAll(c => holeMap.ContainsKey(c));
             if (freeCells.Count < 2) {
                 return false;
             }
@@ -253,7 +286,7 @@ public class LevelDataGeneratorWindow : EditorWindow {
             return true;
         }
 
-        var neighbors = GetNeighbors(current)
+        var neighbors = GetNeighbors(current, path)
             .Where(next => !visited.Contains(next) && (!occupied[next.x, next.y] || next == end))
             .OrderBy(_ => rng.Next())
             .ThenBy(next => ManhattanDistance(next, end))
@@ -282,7 +315,15 @@ public class LevelDataGeneratorWindow : EditorWindow {
         return result;
     }
 
-    private IEnumerable<Vector2Int> GetNeighbors(Vector2Int pos) {
+    private IEnumerable<Vector2Int> GetNeighbors(Vector2Int pos, List<Vector2Int> path) {
+        if (holeMap.TryGetValue(pos, out var pairHole)) {
+            bool justTeleported = (path.Count >= 2 && path[path.Count - 2] == pairHole);
+            if (!justTeleported) {
+                yield return pairHole;
+                yield break;
+            }
+        }
+
         Vector2Int[] dirs = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
         foreach (var dir in dirs) {
             var next = pos + dir;
