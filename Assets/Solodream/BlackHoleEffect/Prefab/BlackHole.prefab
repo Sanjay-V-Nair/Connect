@@ -180,8 +180,14 @@ VisualEffect:
       - m_Value: 4
         m_Name: Dust_Area
         m_Overridden: 0
+      - m_Value: 10
+        m_Name: Trails_Width
+        m_Overridden: 1
     m_Vector2f:
-      m_Array: []
+      m_Array:
+      - m_Value: {x: 0.6, y: 0.8}
+        m_Name: Trails_Lifetime
+        m_Overridden: 1
     m_Vector3f:
       m_Array: []
     m_Vector4f:
@@ -376,7 +382,7 @@ Transform:
   m_GameObject: {fileID: 8006868824720465826}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.1, z: 0}
   m_LocalScale: {x: 0.45000002, y: 0.45000002, z: 0.45000002}
   m_ConstrainProportionsScale: 1
   m_Children: []

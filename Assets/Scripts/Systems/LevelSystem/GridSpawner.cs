@@ -23,11 +23,16 @@ namespace Connect.Systems.LevelSystem {
                     // Position calculated from lower bottom to upper right
                     var spawnPosition = new Vector3(x * tileSize, 0, y * tileSize); // 3D space
                     
+                    var pos = new Vector2Int(x, y);
+                    
+                    if (levelData.emptySpaces != null && levelData.emptySpaces.Contains(pos)) {
+                        grid[x, y] = null;
+                        continue;
+                    }
+
                     var spawnedTile = Instantiate(tilePrefab, parentTransform);
                     spawnedTile.transform.localPosition = spawnPosition;
                     spawnedTile.name = $"Tile_{x}_{y}";
-
-                    var pos = new Vector2Int(x, y);
                     var isNode = false;
                     var isHole = false;
                     var currentNode = new Node { nodePosition = pos };
@@ -60,11 +65,22 @@ namespace Connect.Systems.LevelSystem {
                         }
                     }
 
+                    var isMutant = false;
+                    if (levelData.mutants != null && levelData.mutants.Count > 0) {
+                        foreach (var mutant in levelData.mutants) {
+                            if (mutant.position == pos) {
+                                isMutant = true;
+                                break;
+                            }
+                        }
+                    }
+
                     // Initialize the TileData for drawing
                     var tileData = new TileData {
                         nodeData = currentNode,
                         isNode = isNode,
                         isHole = isHole,
+                        isMutant = isMutant,
                         pairIndex = pairIndex,
                         gridXSize = levelData.gridXSize,
                         gridYSize = levelData.gridYSize,

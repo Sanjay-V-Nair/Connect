@@ -1871,6 +1871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Connect.Views.GameResult.GameResultView
   homeButton: {fileID: 1290900095}
+  resultText: {fileID: 0}
 --- !u!1 &1542042369
 GameObject:
   m_ObjectHideFlags: 0

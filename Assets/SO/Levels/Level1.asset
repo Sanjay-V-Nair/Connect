@@ -13,24 +13,48 @@ MonoBehaviour:
   m_Name: Level1
   m_EditorClassIdentifier: Assembly-CSharp::Connect.Systems.LevelSystem.LevelData
   levelNumber: 1
-  gridXSize: 3
-  gridYSize: 3
+  gridXSize: 4
+  gridYSize: 4
   nodes:
   - startNode:
-      nodePosition: {x: 0, y: 1}
-      nodeColor: {r: 0.10215378, g: 1, b: 0, a: 0}
+      nodePosition: {x: 3, y: 1}
+      nodeColor: {r: 0, g: 1, b: 0, a: 1}
     endNode:
-      nodePosition: {x: 2, y: 0}
-      nodeColor: {r: 0.101960786, g: 1, b: 0, a: 0}
+      nodePosition: {x: 0, y: 1}
+      nodeColor: {r: 0, g: 1, b: 0, a: 1}
   - startNode:
-      nodePosition: {x: 0, y: 2}
-      nodeColor: {r: 1, g: 0, b: 0.029075146, a: 0}
+      nodePosition: {x: 2, y: 0}
+      nodeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     endNode:
       nodePosition: {x: 1, y: 1}
-      nodeColor: {r: 1, g: 0, b: 0.02745098, a: 0}
+      nodeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   - startNode:
-      nodePosition: {x: 2, y: 1}
-      nodeColor: {r: 0, g: 0.74981546, b: 1, a: 0}
+      nodePosition: {x: 0, y: 2}
+      nodeColor: {r: 0.5, g: 0, b: 0.5, a: 1}
     endNode:
-      nodePosition: {x: 2, y: 2}
-      nodeColor: {r: 0, g: 0.7490196, b: 1, a: 0}
+      nodePosition: {x: 2, y: 1}
+      nodeColor: {r: 0.5, g: 0, b: 0.5, a: 1}
+  nodeGroups: []
+  holePairs:
+  - entryPosition: {x: 0, y: 0}
+    exitPosition: {x: 3, y: 0}
+  mutants: []
+  emptySpaces:
+  - {x: 2, y: 3}
+  - {x: 1, y: 3}
+  - {x: 3, y: 2}
+  solutions:
+  - pathCells:
+    - {x: 3, y: 1}
+    - {x: 3, y: 0}
+    - {x: 0, y: 0}
+    - {x: 0, y: 1}
+  - pathCells:
+    - {x: 2, y: 0}
+    - {x: 1, y: 0}
+    - {x: 1, y: 1}
+  - pathCells:
+    - {x: 0, y: 2}
+    - {x: 1, y: 2}
+    - {x: 2, y: 2}
+    - {x: 2, y: 1}

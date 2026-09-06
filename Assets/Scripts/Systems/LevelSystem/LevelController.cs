@@ -116,7 +116,7 @@ namespace Connect.Systems.LevelSystem {
                     if (index >= 0) {
                         isDragging = true;
                         currentPathPairIndex = pairIndex;
-                        currentPathColor = path[0].NodeColor;
+                        currentPathColor = path[index].PathColor ?? path[index].NodeColor;
                         currentPath = new List<TileView>();
                         for (int i = 0; i <= index; i++) {
                             currentPath.Add(path[i]);
@@ -130,7 +130,7 @@ namespace Connect.Systems.LevelSystem {
                             if (IsAdjacent(t.GridPosition, prev.GridPosition)) {
                                 var dir = t.GridPosition - prev.GridPosition;
                                 var fromEdge = GetEdgeDirection(dir);
-                                prev.DisablePathEdge(fromEdge);
+                                prev.RemoveEdge(fromEdge);
                             }
                             
                             t.ClearPath();
@@ -182,6 +182,10 @@ namespace Connect.Systems.LevelSystem {
                 }
             }
 
+            if (tile.IsMutant) {
+                currentPathColor = ColorConstants.GetMutatedColor(currentPathColor);
+            }
+
             AddTileToPath(lastTile, tile);
 
             if (tile.IsHole) {
@@ -217,8 +221,8 @@ namespace Connect.Systems.LevelSystem {
                         AudioManager.Instance.PlayConnectAudio();
                     }
                     currentPath.Clear();
-                    startTile.RenderState(TileState.Complete, currentPathColor);
-                    endTile.RenderState(TileState.Complete, currentPathColor);
+                    startTile.SetState(TileState.Complete, currentPathColor);
+                    endTile.SetState(TileState.Complete, currentPathColor);
                     CheckWinCondition();
                     return;
                 }
@@ -236,9 +240,8 @@ namespace Connect.Systems.LevelSystem {
             TileEdge fromEdge = GetEdgeDirection(dir);
             TileEdge toEdge = GetEdgeDirection(-dir);
 
-            fromTile.EnablePathEdge(fromEdge, currentPathColor, currentPathPairIndex);
-            toTile.EnablePathEdge(toEdge, currentPathColor, currentPathPairIndex);
-            toTile.RenderState(TileState.Path, currentPathColor);
+            fromTile.AddEdge(fromEdge, currentPathColor, currentPathPairIndex);
+            toTile.AddEdge(toEdge, currentPathColor, currentPathPairIndex);
             
             if (AudioManager.Instance != null) {
                 AudioManager.Instance.PlayEdgeProgressAudio();
@@ -255,11 +258,20 @@ namespace Connect.Systems.LevelSystem {
             
             if (IsAdjacent(lastTile.GridPosition, prevTile.GridPosition)) {
                 var fromEdge = GetEdgeDirection(dir);
-                prevTile.DisablePathEdge(fromEdge);
+                prevTile.RemoveEdge(fromEdge);
             }
             lastTile.ClearPath(); 
 
             currentPath.RemoveAt(currentPath.Count - 1);
+            
+            if (currentPath.Count > 0) {
+                var newTip = currentPath[currentPath.Count - 1];
+                if (newTip.PathColor.HasValue) {
+                    currentPathColor = newTip.PathColor.Value;
+                } else if (newTip.IsNode) {
+                    currentPathColor = newTip.NodeColor;
+                }
+            }
         }
 
         private void ClearPathByPair(int pairIndex) {

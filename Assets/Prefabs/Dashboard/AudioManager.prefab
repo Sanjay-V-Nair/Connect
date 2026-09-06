@@ -51,7 +51,7 @@ MonoBehaviour:
   gameMusic: {fileID: 8300000, guid: c97c1309598e7234490d075ff2fcb63f, type: 3}
   levelMusic: {fileID: 8300000, guid: 5ee9172b96e7de448bf6f857f40e6a2f, type: 3}
   buttonClickMusic: {fileID: 8300000, guid: adec9db4c68ef07409a0effcf1890776, type: 3}
-  winMusic: {fileID: 8300000, guid: 3583c64e8fb86e648bd27530b3785a7e, type: 3}
+  winMusic: {fileID: 8300000, guid: 0ed38fc0331c29c4e8c11833d4327cef, type: 3}
   edgeProgressAudio: {fileID: 8300000, guid: 72c0b469d7a80fb4e94c32e45cc2e0b3, type: 3}
   connectAudio: {fileID: 8300000, guid: d2b184157acae954ab3e0737d2742d3f, type: 3}
 --- !u!82 &612167395748931863

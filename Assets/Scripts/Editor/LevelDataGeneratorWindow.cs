@@ -14,6 +14,12 @@ public class LevelDataGeneratorWindow : EditorWindow {
     private int nodePairsPerLevel = 3;
     private int minHolePairsPerLevel = 0;
     private int maxHolePairsPerLevel = 1;
+    private bool generateMutantTiles = false;
+    private int minMutantsPerLevel = 0;
+    private int maxMutantsPerLevel = 1;
+    private bool generateEmptySpaces = false;
+    private int minEmptySpacesPerLevel = 0;
+    private int maxEmptySpacesPerLevel = 2;
     private int minEndpointDistance = 2;
     private int minPathLength = 4;
     private int attemptsPerLevel = 40;
@@ -44,6 +50,23 @@ public class LevelDataGeneratorWindow : EditorWindow {
         nodePairsPerLevel = EditorGUILayout.IntField("Node Pairs Per Level", nodePairsPerLevel);
         minHolePairsPerLevel = EditorGUILayout.IntField("Min Hole Pairs Per Level", minHolePairsPerLevel);
         maxHolePairsPerLevel = EditorGUILayout.IntField("Max Hole Pairs Per Level", maxHolePairsPerLevel);
+        
+        generateMutantTiles = EditorGUILayout.Toggle("Generate Mutant Tiles", generateMutantTiles);
+        if (generateMutantTiles) {
+            EditorGUI.indentLevel++;
+            minMutantsPerLevel = EditorGUILayout.IntField("Min Mutants Per Level", minMutantsPerLevel);
+            maxMutantsPerLevel = EditorGUILayout.IntField("Max Mutants Per Level", maxMutantsPerLevel);
+            EditorGUI.indentLevel--;
+        }
+
+        generateEmptySpaces = EditorGUILayout.Toggle("Generate Empty Spaces", generateEmptySpaces);
+        if (generateEmptySpaces) {
+            EditorGUI.indentLevel++;
+            minEmptySpacesPerLevel = EditorGUILayout.IntField("Min Empty Spaces Per Level", minEmptySpacesPerLevel);
+            maxEmptySpacesPerLevel = EditorGUILayout.IntField("Max Empty Spaces Per Level", maxEmptySpacesPerLevel);
+            EditorGUI.indentLevel--;
+        }
+
         minEndpointDistance = EditorGUILayout.IntField("Min Endpoint Distance", minEndpointDistance);
         minPathLength = EditorGUILayout.IntField("Min Path Length (cells)", minPathLength);
         attemptsPerLevel = EditorGUILayout.IntField("Attempts Per Level", attemptsPerLevel);
@@ -93,7 +116,7 @@ public class LevelDataGeneratorWindow : EditorWindow {
                 continue;
             }
 
-            if (!TryGenerateLayout(out var nodePairs, out var holePairs)) {
+            if (!TryGenerateLayout(out var nodePairs, out var holePairs, out var mutants, out var emptySpaces, out var solutions)) {
                 Debug.LogWarning($"Failed to generate a valid layout for Level {levelNumber} after {attemptsPerLevel} attempts.");
                 continue;
             }
@@ -110,6 +133,9 @@ public class LevelDataGeneratorWindow : EditorWindow {
             levelAsset.nodes = nodePairs;
             levelAsset.nodeGroups = new List<NodeGroup>();
             levelAsset.holePairs = holePairs;
+            levelAsset.mutants = mutants;
+            levelAsset.emptySpaces = emptySpaces;
+            levelAsset.solutions = solutions;
 
             EditorUtility.SetDirty(levelAsset);
             createdOrUpdatedLevels.Add(levelAsset);
@@ -153,8 +179,8 @@ public class LevelDataGeneratorWindow : EditorWindow {
         }
 
         int maxEndpointCells = gridXSize * gridYSize;
-        if (nodePairsPerLevel * 2 + maxHolePairsPerLevel * 2 > maxEndpointCells) {
-            Debug.LogError("Too many node/hole pairs for current grid size.");
+        if (nodePairsPerLevel * 2 + maxHolePairsPerLevel * 2 + (generateMutantTiles ? maxMutantsPerLevel : 0) + (generateEmptySpaces ? maxEmptySpacesPerLevel : 0) > maxEndpointCells) {
+            Debug.LogError("Too many node/hole/mutant/empty pairs for current grid size.");
             return false;
         }
 
@@ -176,15 +202,30 @@ public class LevelDataGeneratorWindow : EditorWindow {
         return true;
     }
 
-    private bool TryGenerateLayout(out List<NodePair> resultPairs, out List<HolePair> resultHoles) {
+    private bool TryGenerateLayout(out List<NodePair> resultPairs, out List<HolePair> resultHoles, out List<Mutant> resultMutants, out List<Vector2Int> resultEmptySpaces, out List<SolutionPath> resultSolutions) {
         resultPairs = new List<NodePair>();
         resultHoles = new List<HolePair>();
+        resultMutants = new List<Mutant>();
+        resultEmptySpaces = new List<Vector2Int>();
+        resultSolutions = new List<SolutionPath>();
 
         for (int levelAttempt = 0; levelAttempt < attemptsPerLevel; levelAttempt++) {
             var occupied = new bool[gridXSize, gridYSize];
             var candidatePairs = new List<NodePair>();
             var candidateHoles = new List<HolePair>();
+            var candidateMutants = new List<Mutant>();
+            var candidateEmptySpaces = new List<Vector2Int>();
+            var candidateSolutions = new List<SolutionPath>();
             holeMap.Clear();
+
+            int numEmptySpaces = generateEmptySpaces ? rng.Next(minEmptySpacesPerLevel, maxEmptySpacesPerLevel + 1) : 0;
+            for (int i = 0; i < numEmptySpaces; i++) {
+                var freeCells = GetFreeCells(occupied);
+                if (freeCells.Count == 0) break;
+                Vector2Int emptyPos = freeCells[rng.Next(freeCells.Count)];
+                occupied[emptyPos.x, emptyPos.y] = true;
+                candidateEmptySpaces.Add(emptyPos);
+            }
 
             int numHoles = rng.Next(minHolePairsPerLevel, maxHolePairsPerLevel + 1);
             bool holesValid = true;
@@ -205,19 +246,29 @@ public class LevelDataGeneratorWindow : EditorWindow {
             if (!holesValid) continue;
 
             bool levelValid = true;
+            int numMutantsTarget = generateMutantTiles ? rng.Next(minMutantsPerLevel, maxMutantsPerLevel + 1) : 0;
+            var availableColors = new List<Color>(ColorConstants.GetValidColors());
 
             for (int pairIndex = 0; pairIndex < nodePairsPerLevel; pairIndex++) {
-                if (!TryGenerateSinglePair(occupied, out var pair)) {
+                bool wantsMutant = candidateMutants.Count < numMutantsTarget;
+                if (!TryGenerateSinglePair(occupied, availableColors, wantsMutant, out var pair, out var mutant, out var generatedPath)) {
                     levelValid = false;
                     break;
                 }
 
                 candidatePairs.Add(pair);
+                candidateSolutions.Add(new SolutionPath { pathCells = generatedPath });
+                if (mutant.HasValue) {
+                    candidateMutants.Add(mutant.Value);
+                }
             }
 
             if (levelValid && candidatePairs.Count == nodePairsPerLevel) {
                 resultPairs = candidatePairs;
                 resultHoles = candidateHoles;
+                resultMutants = candidateMutants;
+                resultEmptySpaces = candidateEmptySpaces;
+                resultSolutions = candidateSolutions;
                 return true;
             }
         }
@@ -225,8 +276,10 @@ public class LevelDataGeneratorWindow : EditorWindow {
         return false;
     }
 
-    private bool TryGenerateSinglePair(bool[,] occupied, out NodePair pair) {
+    private bool TryGenerateSinglePair(bool[,] occupied, List<Color> availableColors, bool wantsMutant, out NodePair pair, out Mutant? mutant, out List<Vector2Int> generatedPath) {
         pair = default;
+        mutant = null;
+        generatedPath = null;
         int pairAttempts = Mathf.Max(20, gridXSize * gridYSize * 2);
 
         for (int attempt = 0; attempt < pairAttempts; attempt++) {
@@ -255,11 +308,29 @@ public class LevelDataGeneratorWindow : EditorWindow {
                 occupied[pos.x, pos.y] = true;
             }
 
-            Color pairColor = RandomBrightColor();
+            if (availableColors.Count == 0) return false;
+
+            Color startColor = availableColors[rng.Next(availableColors.Count)];
+            availableColors.Remove(startColor);
+            Color endColor = startColor;
+            Mutant? chosenMutant = null;
+
+            if (wantsMutant && path.Count > 2) {
+                Color mutated = ColorConstants.GetMutatedColor(startColor);
+                if (availableColors.Contains(mutated)) {
+                    availableColors.Remove(mutated);
+                    endColor = mutated;
+                    Vector2Int mPos = path[rng.Next(1, path.Count - 1)];
+                    chosenMutant = new Mutant { position = mPos };
+                }
+            }
+
             pair = new NodePair {
-                startNode = new Node { nodePosition = start, nodeColor = pairColor },
-                endNode = new Node { nodePosition = end, nodeColor = pairColor }
+                startNode = new Node { nodePosition = start, nodeColor = startColor },
+                endNode = new Node { nodePosition = end, nodeColor = endColor }
             };
+            mutant = chosenMutant;
+            generatedPath = path;
             return true;
         }
 
@@ -337,12 +408,7 @@ public class LevelDataGeneratorWindow : EditorWindow {
         return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
     }
 
-    private Color RandomBrightColor() {
-        float hue = (float)rng.NextDouble();
-        float saturation = 0.7f + ((float)rng.NextDouble() * 0.3f);
-        float value = 0.8f + ((float)rng.NextDouble() * 0.2f);
-        return Color.HSVToRGB(hue, saturation, value);
-    }
+
 
     private void UpdateLevelsDataAsset(List<LevelData> generatedLevels) {
         if (levelsDataAsset.levels == null) {

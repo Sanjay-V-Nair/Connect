@@ -67,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c22e6a021b2de5a4ba1642f2b4ecb4a8, type: 2}
+  - {fileID: 2100000, guid: dfc5bbb744310a843b30ae770d2873bb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -157,6 +157,7 @@ MonoBehaviour:
   whiteMaterial: {fileID: 2100000, guid: c22e6a021b2de5a4ba1642f2b4ecb4a8, type: 2}
   blackMaterial: {fileID: 2100000, guid: 5369303e9f490ef43be227e8c9a3a39f, type: 2}
   blackHole: {fileID: 6905264858025557881}
+  mutantObject: {fileID: 0}
   edgeDataArray:
   - edge: 2
     edgeObject: {fileID: 3562586193055027428}
